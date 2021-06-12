@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<body>
+    <form id="form1" runat="server">
+        <input type='file' id="imgInp" accept="image/png, image/jpeg" />
+        <div id="hdev_thanh_loading">
+            <button type="button" id="hdev_button_remove_img">remove</button>
+        </div>
+        
+            <img  style="width: 150px;display: block;margin: 6px 0;" id="blah" src="" />
+        
+       
+    </form>
+
+    <style>
+        #hdev_thanh_loading{
+            background-color: green;
+            height: 3px;
+            width: 0;
+            margin: 6px 0;
+            display: none;
+            position: relative;
+        }
+        #hdev_button_remove_img{
+            position: absolute;
+            right: 0;
+            background: none;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: indigo;
+        }
+    </style>
+
+    <script>
+        function readURL(input) {
+            jQuery('#imgInp').click(function(){
+                jQuery('#hdev_thanh_loading').css({
+                        'width': '0px',
+                        'transition': '0s',
+                    })
+            });
+            jQuery("#hdev_button_remove_img").click(function(){
+                jQuery("#blah").attr("src", "");
+                jQuery("#imgInp").val("");
+                jQuery('#hdev_thanh_loading').css({
+                        'width': '0px',
+                        'transition': '0s',
+                        "display": "none",
+                    })
+            })
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                
+                reader.onload = function (e) {
+                    jQuery('#hdev_thanh_loading').css({
+                        "display": "block",
+                        'width': '300px',
+                        'transition': '1.5s',
+                        
+                    })
+                    jQuery('#blah').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        jQuery("#imgInp").change(function () {
+            
+            readURL(this);
+        });
+    </script>
+</body>
+
+</html>

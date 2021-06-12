@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="css/main.css">
+</head>
+
+
+<body>
+
+    <img id="blah" src="" alt="" />
+    <div id="output"></div>
+
+    <div class="file-upload">
+
+
+        <select id="lv_Optimal">
+            <option value="10">10%</option>
+            <option value="20">20%</option>
+            <option value="30">30%</option>
+            <option value="40">40%</option>
+            <option value="50">50%</option>
+            <option value="60">60%</option>
+            <option value="70">70%</option>
+            <option value="80">80%</option>
+            <option value="90">90%</option>
+            <option value="95">95%</option>
+        </select>
+
+        <div class="image-upload-wrap">
+            <input id="inpImg" class="file-upload-input" type='file' multiple name="img[]" onchange="readURL(this);"
+                accept="image/*" />
+            <div class="drag-text">
+                <h3>Drag and drop a file or select add Image</h3>
+            </div>
+        </div>
+        <div class="file-upload-content">
+            <div id="container_img" class="container box_search_ming"></div>
+        </div>
+    </div>
+
+
+    <script>
+        function readURL(input) {
+
+
+
+            if (input.files && input.files[0]) {
+
+
+
+                for (var i = 0; i < input.files.length; i++) {
+
+
+
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+
+
+                        $('.file-upload-image').attr('src', e.target.result);
+                        $('.file-upload-content').show();
+
+
+                    };
+
+                    reader.readAsDataURL(input.files[i]);
+
+
+                    var $files = $('#inpImg').get(0).files;
+
+                    if ($files.length) {
+                        if ($files[i].size > $(this).data('max-size') * 1024) {
+                            console.log('Vui lòng chọn file có dung lượng nhỏ hơn!');
+                            return false;
+                        }
+
+                        console.log('Đang upload hình ảnh lên imgur...');
+
+                        var apiUrl = 'https://api.imgur.com/3/image';
+                        var apiKey = '07d8712f12f015b'; // Thay bằng Client ID của ae
+
+                        var settings = {
+                            async: false,
+                            crossDomain: true,
+                            processData: false,
+                            contentType: false,
+                            type: 'POST',
+                            url: apiUrl,
+                            headers: {
+                                Authorization: 'Client-ID ' + apiKey,
+                                Accept: 'application/json',
+                            },
+                            mimeType: 'multipart/form-data',
+                        };
+
+                        var formData = new FormData();
+                        formData.append('image', $files[i]);
+                        settings.data = formData;
+
+                        const container = document.querySelector(".container");
+
+                        $.ajax(settings).done(function (response) {
+                            var obj = JSON.parse(response);
+                            var link = obj.data.link;
+                            console.log(response)
+                            var lv_Optimal = jQuery('#lv_Optimal').val();
+                            $.get("http://api.resmush.it/ws.php?img=" + link + "&qlty=" + lv_Optimal, function (
+                                data) {
+                                var randNum = Math.floor(Math.random() * 10000000);
+                                var cardTag = `<div class="card_img">
+                                <div  class="hdev_thanh_loading">
+                                    <div class="thanh_loading">
+                                        <div class="slide-progress-bar">
+                                            <div class="progress-bar" id="progress-bar-${randNum}"></div>
+                                        </div>
+                                     ${data.dest}
+                                </div>    
+                            </div>`;
+                                container.innerHTML += cardTag
+                                console.log(cardTag.length)
+
+
+
+                                var elem = document.getElementById("progress-bar-"+randNum);
+                                var width = 1;
+
+                                function progressBar() { 
+                                    resetProgressBar();
+                                    id = setInterval(frame, 20);
+
+                                    function frame() {
+                                        if (width >= 100) {
+                                            clearInterval(id);
+                                        } else {
+                                            width += 10;
+                                            elem.style.width = width + '%';
+
+                                        }
+                                    }
+                                    
+                                }
+
+                                function resetProgressBar() {
+                                    width = 1;
+                                    elem.style.width = width + '%';
+                                }
+
+
+                                progressBar();
+
+
+                            });
+                        });
+
+
+
+
+
+                    }
+
+
+
+                    // var reader = new FileReader();
+                    // reader.onload = function (e) {
+                    //     var image = new Image();
+                    //     image.src = e.target.result;
+                    //     $('#blah').attr('src', e.target.result);
+                    // };
+
+                    // reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+
+
+
+            $('.image-upload-wrap').bind('dragover', function () {
+                $('.image-upload-wrap').addClass('image-dropping');
+            });
+            $('.image-upload-wrap').bind('dragleave', function () {
+                $('.image-upload-wrap').removeClass('image-dropping');
+            });
+        }
+    </script>
+
+</body>
+
+</html>
